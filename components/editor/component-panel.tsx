@@ -1,5 +1,6 @@
 import { useEditor, Element } from "@craftjs/core"
-import { Type, Square, TableIcon, Layout, Minus } from "lucide-react"
+import { useDrag } from "@/components/editor/drag-context"
+import { Type, Square, TableIcon, Layout, Minus, Search } from "lucide-react"
 import {
   Container,
   Text,
@@ -25,6 +26,7 @@ interface ComponentPanelProps {
 
 export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelProps) {
   const { connectors } = useEditor()
+  const { setDragType } = useDrag() // Import useDrag
 
   const sections = [
     {
@@ -32,12 +34,37 @@ export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelPro
       value: "structure",
       items: [
         {
-          name: "Contenedor Flex",
+          name: "Contenedor",
+          type: "container",
           icon: Square,
           ref: (ref: HTMLDivElement) => { connectors.create(ref, <Element canvas is={Container} flexDirection="column" padding={20} />) },
         },
         {
+          name: "Cuadrícula",
+          type: "grid",
+          icon: Layout,
+          ref: (ref: HTMLDivElement) => {
+            connectors.create(
+              ref,
+              <Element
+                canvas
+                is={Container}
+                layout="grid"
+                columns={2}
+                rows={1}
+                gap={20}
+                padding={10}
+                minHeight="100px"
+              >
+                <Element canvas is={Container} padding={10} minHeight="80px" backgroundColor="#f8fafc" borderColor="#e2e8f0" borderWidth={1} borderRadius={4} />
+                <Element canvas is={Container} padding={10} minHeight="80px" backgroundColor="#f8fafc" borderColor="#e2e8f0" borderWidth={1} borderRadius={4} />
+              </Element>
+            )
+          },
+        },
+        {
           name: "Separador",
+          type: "divider",
           icon: Minus,
           ref: (ref: HTMLDivElement) => { connectors.create(ref, <Divider />) },
         },
@@ -48,12 +75,14 @@ export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelPro
       value: "content",
       items: [
         {
-          name: "Texto",
+          name: "Texto Simple",
+          type: "text",
           icon: Type,
           ref: (ref: HTMLDivElement) => { connectors.create(ref, <Text text="Texto de ejemplo" />) },
         },
         {
-          name: "Tabla",
+          name: "Tabla de Ítems",
+          type: "table",
           icon: TableIcon,
           ref: (ref: HTMLDivElement) => { connectors.create(ref, <Table />) },
         },
@@ -65,6 +94,7 @@ export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelPro
       items: [
         {
           name: "Logotipo",
+          type: "gio",
           icon: Layout,
           ref: (ref: HTMLDivElement) => { connectors.create(ref, <GioComponent />) },
         },
@@ -120,20 +150,21 @@ export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelPro
             <AccordionTrigger className="px-4 py-2 hover:no-underline hover:bg-muted/50 text-sm font-medium text-muted-foreground data-[state=open]:text-foreground">
               {section.title}
             </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-2">
-              <div className="px-2 space-y-1">
+            <AccordionContent className="pt-2 pb-4">
+              <div className="px-3 grid grid-cols-2 gap-2">
                 {section.items.map((item, i) => {
                   const Icon = item.icon
                   return (
                     <div
                       key={i}
                       ref={item.ref}
-                      className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground cursor-move transition-colors group"
+                      onMouseDownCapture={() => setDragType(item.type as any)} // Capture early
+                      className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border border-border bg-card hover:bg-muted/50 hover:border-primary/50 cursor-grab active:cursor-grabbing transition-all duration-200 group"
                     >
-                      <div className="p-1.5 rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-medium">{item.name}</span>
+                      <Icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <span className="text-xs font-medium text-center text-foreground group-hover:text-primary transition-colors">
+                        {item.name}
+                      </span>
                     </div>
                   )
                 })}

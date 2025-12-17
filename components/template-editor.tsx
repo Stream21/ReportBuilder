@@ -21,6 +21,8 @@ import {
   GioComponent
 } from "@/components/editor/components"
 import { RenderNode } from "@/components/editor/render-node" // New
+import { CustomDragLayer } from "@/components/editor/custom-drag-layer"
+import { DragProvider } from "@/components/editor/drag-context"
 
 
 interface TemplateEditorProps {
@@ -31,50 +33,51 @@ interface TemplateEditorProps {
 export function TemplateEditor({ template, onTemplateUpdate }: TemplateEditorProps) {
   const [zoom, setZoom] = useState(100)
   const [showComponents, setShowComponents] = useState(true)
-  const [showLayers, setShowLayers] = useState(false)
+
+  console.log("TemplateEditor resolving:", { Container, Page, Text })
 
   return (
-    <Editor
-      resolver={{
-        Container,
-        Text,
-        Image,
-        Divider,
-        Table,
-        GioComponent,
-        Logo,
-        Header,
-        Footer,
-        Page,
-      }}
-      onRender={RenderNode} // New
-    >
-      <div className="h-full flex flex-col bg-background craftjs-renderer">
-        <EditorToolbar
-          template={template}
-          zoom={zoom}
-          onZoomChange={setZoom}
-          onToggleVariables={() => { }} // Ya no se usa individualmente
-          onToggleComponents={() => setShowComponents(!showComponents)}
-          onToggleLayers={() => setShowLayers(!showLayers)}
-          showVariables={true} // Siempre visible en el sidebar
-          showComponents={showComponents}
-          showLayers={showLayers}
-        />
+    <DragProvider>
+      <Editor
+        resolver={{
+          Container,
+          Text,
+          Image,
+          Divider,
+          Table,
+          GioComponent,
+          Logo,
+          Header,
+          Footer,
+          Page,
+        }}
+        onRender={RenderNode} // New
+      >
+        <div className="h-full flex flex-col bg-background craftjs-renderer">
+          <EditorToolbar
+            template={template}
+            zoom={zoom}
+            onZoomChange={setZoom}
+            onToggleVariables={() => { }} // Ya no se usa individualmente
+            onToggleComponents={() => setShowComponents(!showComponents)}
+            showVariables={true} // Siempre visible en el sidebar
+            showComponents={showComponents}
+          />
 
-        <div className="flex-1 flex overflow-hidden">
-          {showComponents && (
-            <ComponentPanel template={template} onTemplateUpdate={onTemplateUpdate} />
-          )}
-          {showLayers && <LayersPanel />}
+          <div className="flex-1 flex overflow-hidden">
+            {showComponents && (
+              <ComponentPanel template={template} onTemplateUpdate={onTemplateUpdate} />
+            )}
 
-          <div className="flex-1 flex flex-col">
-            <EditorCanvas template={template} zoom={zoom} />
+            <div className="flex-1 flex flex-col">
+              <EditorCanvas template={template} zoom={zoom} />
+            </div>
+
+            <RightSidebar template={template} onTemplateUpdate={onTemplateUpdate} />
           </div>
-
-          <RightSidebar template={template} onTemplateUpdate={onTemplateUpdate} />
         </div>
-      </div>
-    </Editor>
+        <CustomDragLayer />
+      </Editor>
+    </DragProvider>
   )
 }

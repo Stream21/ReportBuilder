@@ -8,6 +8,7 @@ import ContentEditable from "react-contenteditable"
 import React, { useEffect, useState } from "react"
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { MOCK_DATA } from "@/lib/mock-data"
 
 
 interface TextProps {
@@ -59,6 +60,17 @@ export function Text({
     }
   }, [isActive])
 
+  // Interpolate text for Preview Mode
+  const getInterpolatedText = () => {
+    if (enabled) return text
+
+    return text.replace(/\{\{\s*([\w_.]+)\s*\}\}/g, (match, key) => {
+      // Intenta encontrar la clave exacta, o busca una aproximada si es necesario
+      const val = MOCK_DATA[key] || MOCK_DATA[key.replace('.', '_')]
+      return val || match
+    })
+  }
+
   const handleDoubleClick = (e: React.MouseEvent) => {
     if (enabled) {
       setEditable(true)
@@ -94,7 +106,7 @@ export function Text({
     >
       <ContentEditable
         disabled={!enabled || !editable}
-        html={text}
+        html={getInterpolatedText()}
         onChange={(e) => {
           setProp((props: TextProps) => (props.text = e.target.value), 500)
         }}

@@ -1,7 +1,8 @@
 "use client"
-
+import { useState } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Save, Undo, Redo, ZoomIn, ZoomOut, Eye, Code, Database, Box, Layers } from "lucide-react"
+import { Save, Undo, Redo, ZoomIn, ZoomOut, Eye, EyeOff, Code, Database, Box, Layers, Printer } from "lucide-react"
 import type { Template } from "@/app/page"
 import { useEditor } from "@craftjs/core"
 
@@ -11,13 +12,13 @@ interface EditorToolbarProps {
   onZoomChange: (zoom: number) => void
   onToggleVariables: () => void
   onToggleComponents: () => void
-  onToggleLayers: () => void
   showVariables: boolean
   showComponents: boolean
-  showLayers: boolean
 }
 
-import { ModeToggle } from "@/components/mode-toggle"
+
+import { TwigExportModal } from "./twig-export-modal"
+import { generateTwig } from "@/lib/twig-generator"
 
 export function EditorToolbar({
   template,
@@ -25,15 +26,17 @@ export function EditorToolbar({
   onZoomChange,
   onToggleVariables,
   onToggleComponents,
-  onToggleLayers,
   showVariables,
   showComponents,
-  showLayers,
 }: EditorToolbarProps) {
-  const { actions, query, canUndo, canRedo } = useEditor((state, query) => ({
+  const { actions, query, canUndo, canRedo, enabled } = useEditor((state, query) => ({
     canUndo: query.history.canUndo(),
     canRedo: query.history.canRedo(),
+    enabled: state.options.enabled,
   }))
+
+  const [showTwigModal, setShowTwigModal] = useState(false)
+  const [twigCode, setTwigCode] = useState("")
 
   const handleSave = () => {
     const json = query.serialize()
@@ -43,10 +46,32 @@ export function EditorToolbar({
   }
 
   const handleExportTwig = () => {
-    const json = query.serialize()
-    console.log("Exportando a Twig:", json)
-    // Aquí generarías el Twig
-    alert("Exportando plantilla a formato Twig")
+    // Get raw nodes which have the 'data' structure our generator expects
+    const nodes = query.getState().nodes
+    const code = generateTwig(nodes as any)
+    setTwigCode(code)
+    setShowTwigModal(true)
+  }
+
+
+  useEffect(() => {
+    const handleAfterPrint = () => {
+      if (!enabled) {
+        actions.setOptions((options) => (options.enabled = true))
+      }
+    }
+    window.addEventListener("afterprint", handleAfterPrint)
+    return () => window.removeEventListener("afterprint", handleAfterPrint)
+  }, [enabled, actions])
+
+  const handleVisualizar = () => {
+    // Switch to preview mode immediately
+    actions.setOptions((options) => (options.enabled = false))
+
+    // Short timeout to allow React to render the clean state before opening print dialog
+    setTimeout(() => {
+      window.print()
+    }, 100)
   }
 
   return (
@@ -59,7 +84,6 @@ export function EditorToolbar({
           </p>
         </div>
         <div className="h-8 w-px bg-border" />
-        <ModeToggle />
       </div>
 
       <div className="flex items-center gap-2">
@@ -87,10 +111,7 @@ export function EditorToolbar({
           Componentes
         </Button>
 
-        <Button variant={showLayers ? "secondary" : "ghost"} size="sm" onClick={onToggleLayers}>
-          <Layers className="w-4 h-4 mr-2" />
-          Capas
-        </Button>
+
 
         <Button variant={showVariables ? "secondary" : "ghost"} size="sm" onClick={onToggleVariables}>
           <Database className="w-4 h-4 mr-2" />
@@ -99,9 +120,13 @@ export function EditorToolbar({
 
         <div className="w-px h-6 bg-border mx-2" />
 
-        <Button variant="ghost" size="sm">
+        {/* Removed functionality of manual Edit/Preview toggle as requested by user. 
+            Now "Visualizar" handles the preview/print state automatically. 
+        */}
+
+        <Button variant="default" size="sm" onClick={handleVisualizar}>
           <Eye className="w-4 h-4 mr-2" />
-          Vista Previa
+          Visualizar
         </Button>
 
         <Button variant="ghost" size="sm" onClick={handleExportTwig}>
@@ -114,6 +139,12 @@ export function EditorToolbar({
           Guardar
         </Button>
       </div>
+
+      <TwigExportModal
+        open={showTwigModal}
+        onOpenChange={setShowTwigModal}
+        code={twigCode}
+      />
     </div>
   )
 }

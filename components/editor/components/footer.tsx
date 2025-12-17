@@ -3,7 +3,7 @@
 
 // ... imports ...
 import React from "react"
-import { useNode } from "@craftjs/core"
+import { useNode, useEditor } from "@craftjs/core"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -33,6 +33,10 @@ export function Footer({
     connectors: { connect, drag },
   } = useNode()
 
+  const { enabled } = useEditor((state) => ({
+    enabled: state.options.enabled,
+  }))
+
   if (!visible) {
     return (
       <div
@@ -59,7 +63,7 @@ export function Footer({
         gap: `${gap}px`
       }}
     >
-      <div className="empty:p-4 empty:border-2 empty:border-dashed empty:border-gray-200 empty:rounded-lg empty:text-center empty:before:content-['Arrastra_elementos_aquí'] empty:before:text-gray-400 h-full w-full">
+      <div className={`h-full w-full ${enabled ? "empty:p-4 empty:border-2 empty:border-dashed empty:border-gray-200 empty:rounded-lg empty:text-center empty:before:content-['Arrastra_elementos_aquí'] empty:before:text-gray-400" : ""}`}>
         {children}
       </div>
     </div>

@@ -4,10 +4,21 @@ import type React from "react"
 
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
-import { Search, Braces } from "lucide-react"
+import { Search, Braces, Calendar, Hash, Type, Image, Phone, Mail, FileText } from "lucide-react"
 
 export function VariablesPanel() {
   const [search, setSearch] = useState("")
+
+  const getVariableIcon = (variable: string) => {
+    const v = variable.toLowerCase()
+    if (v.includes("fecha") || v.includes("date")) return Calendar
+    if (v.includes("telef") || v.includes("phone")) return Phone
+    if (v.includes("email") || v.includes("mail")) return Mail
+    if (v.includes("logo") || v.includes("imagen") || v.includes("image")) return Image
+    if (v.includes("esfera") || v.includes("cilindro") || v.includes("eje") || v.includes("total") || v.includes("precio") || v.includes("cantidad") || v.includes("ojo")) return Hash
+    if (v.includes("dni") || v.includes("cif") || v.includes("id")) return FileText
+    return Type // Default for text
+  }
 
   const variables = [
     {
@@ -96,20 +107,28 @@ export function VariablesPanel() {
                 <span className="w-1 h-1 rounded-full bg-primary/50" />
                 {category.category}
               </h4>
-              <div className="grid grid-cols-1 gap-2">
-                {category.items.map((variable) => (
-                  <div
-                    key={variable}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, variable)}
-                    className="flex items-center gap-3 p-2.5 rounded-md border border-transparent hover:border-border hover:bg-accent cursor-move transition-all group bg-card/50 shadow-sm hover:shadow"
-                  >
-                    <div className="p-1.5 rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                      <Braces className="w-3.5 h-3.5" />
+              <div className="grid grid-cols-2 gap-2">
+                {category.items.map((variable) => {
+                  const Icon = getVariableIcon(variable)
+                  return (
+                    <div
+                      key={variable}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, variable)}
+                      className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-md hover:bg-accent/50 cursor-grab active:cursor-grabbing transition-all duration-200 group relative overflow-hidden"
+                      title={`{{ ${variable} }}`} // Tooltip para ver el valor completo
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                      <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-200">
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <code className="text-[10px] font-mono text-foreground/80 w-full text-center truncate select-all px-1">
+                        {`{{ ${variable} }}`}
+                      </code>
                     </div>
-                    <code className="text-xs font-mono text-foreground/80 flex-1 truncate select-all">{`{{ ${variable} }}`}</code>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           ))}

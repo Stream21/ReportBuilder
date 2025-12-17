@@ -1,6 +1,6 @@
 "use client"
 
-import { useNode } from "@craftjs/core"
+import { useNode, useEditor } from "@craftjs/core"
 import { Container } from "./container"
 
 interface GioComponentProps {
@@ -24,6 +24,10 @@ export function GioComponent({
         connectors: { connect, drag },
     } = useNode()
 
+    const { enabled } = useEditor((state) => ({
+        enabled: state.options.enabled
+    }))
+
     return (
         <div
             ref={(ref) => { if (ref) connect(drag(ref)) }}
@@ -41,25 +45,33 @@ export function GioComponent({
                 position: "relative",
             }}
         >
-            <div
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#f3f4f6',
-                    border: '1px dashed #d1d5db',
-                    borderRadius: '4px',
-                    color: '#6b7280',
-                    fontSize: '12px',
-                    gap: '4px'
-                }}
-            >
-                <span style={{ fontSize: '20px' }}>🖼️</span>
-                <span style={{ fontWeight: 500 }}>{"{{ empresa.logotipo }}"}</span>
-            </div>
+            {enabled ? (
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#f3f4f6',
+                        border: '1px dashed #d1d5db',
+                        borderRadius: '4px',
+                        color: '#6b7280',
+                        fontSize: '12px',
+                        gap: '4px'
+                    }}
+                >
+                    <span style={{ fontSize: '20px' }}>🖼️</span>
+                    <span style={{ fontWeight: 500 }}>{"{{ empresa.logotipo }}"}</span>
+                </div>
+            ) : (
+                <img
+                    src="https://via.placeholder.com/150x50?text=LOGO+EMPRESA"
+                    alt="Logotipo Mock"
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                />
+            )}
             {/* Visual indicator for software property in editor */}
             <div className="absolute top-0 right-0 p-1 opacity-0 hover:opacity-100 transition-opacity bg-blue-100 text-[10px] text-blue-600 rounded-bl cursor-help" title="Propiedad del Software - No editable">
                 Gio

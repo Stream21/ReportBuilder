@@ -8,6 +8,7 @@ export const AdrianSalgadoLayout = () => {
             canvas
             is={Page}
             padding={8}
+            paddingBottom={100}
             gap={10}
             backgroundColor="#ffffff"
         >

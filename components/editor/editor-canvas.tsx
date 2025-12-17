@@ -79,7 +79,7 @@ export function EditorCanvas({ template, zoom }: EditorCanvasProps) {
           }}
         >
           <div
-            className="bg-white shadow-2xl flex flex-col"
+            className="bg-white shadow-2xl flex flex-col print-visible"
             style={{
               width: `${canvasWidth}mm`,
               height: isContinuous ? "auto" : canvasStyleHeight,

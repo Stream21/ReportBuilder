@@ -9,6 +9,7 @@ export const DefaultInvoiceLayout = () => {
             is={Container}
             flexDirection="column"
             padding={0}
+            paddingBottom={100} // Espacio extra para poder arrastrar elementos al final
             gap={0}
             justifyContent="flex-start"
             alignItems="stretch"
