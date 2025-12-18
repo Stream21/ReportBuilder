@@ -319,7 +319,7 @@ const ContainerSettings = () => {
           <>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">
+                <Label className="text-xs truncate block" title="Dirección">
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -333,18 +333,18 @@ const ContainerSettings = () => {
                   value={flexDirection || "column"}
                   onValueChange={(value) => setProp((props: ContainerProps) => (props.flexDirection = value as any))}
                 >
-                  <SelectTrigger className="h-8">
+                  <SelectTrigger className="h-8 max-w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="row">Horizontal (Fila)</SelectItem>
-                    <SelectItem value="column">Vertical (Columna)</SelectItem>
+                    <SelectItem value="row">Horizontal</SelectItem> // Shortened labels
+                    <SelectItem value="column">Vertical</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs">
+                <Label className="text-xs truncate block" title="Salto de Línea">
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -358,7 +358,7 @@ const ContainerSettings = () => {
                   value={flexWrap || "nowrap"}
                   onValueChange={(value) => setProp((props: ContainerProps) => (props.flexWrap = value as any))}
                 >
-                  <SelectTrigger className="h-8">
+                  <SelectTrigger className="h-8 max-w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -371,11 +371,11 @@ const ContainerSettings = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">
+                <Label className="text-xs truncate block" title="Alineación Horizontal">
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Alineación Horizontal</span>
+                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Alin. Horiz.</span>
                       </TooltipTrigger>
                       <TooltipContent><p>Justify Content</p></TooltipContent>
                     </Tooltip>
@@ -392,18 +392,18 @@ const ContainerSettings = () => {
                     <SelectItem value="flex-start">Inicio</SelectItem>
                     <SelectItem value="center">Centro</SelectItem>
                     <SelectItem value="flex-end">Final</SelectItem>
-                    <SelectItem value="space-between">Separados (Extremos)</SelectItem>
-                    <SelectItem value="space-around">Separados (Alrededor)</SelectItem>
+                    <SelectItem value="space-between">Separados</SelectItem>
+                    <SelectItem value="space-around">Alrededor</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs">
+                <Label className="text-xs truncate block" title="Alineación Vertical">
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Alineación Vertical</span>
+                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Alin. Vert.</span>
                       </TooltipTrigger>
                       <TooltipContent><p>Align Items</p></TooltipContent>
                     </Tooltip>
@@ -417,9 +417,9 @@ const ContainerSettings = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="flex-start">Inicio (Arriba)</SelectItem>
+                    <SelectItem value="flex-start">Inicio</SelectItem>
                     <SelectItem value="center">Centro</SelectItem>
-                    <SelectItem value="flex-end">Final (Abajo)</SelectItem>
+                    <SelectItem value="flex-end">Final</SelectItem>
                     <SelectItem value="stretch">Estirar</SelectItem>
                   </SelectContent>
                 </Select>
@@ -443,13 +443,13 @@ const ContainerSettings = () => {
             <div className="flex items-center gap-2">
               <Input
                 type="number"
-                className="h-8 w-24"
+                className="h-8 w-20"
                 min={0}
                 max={10}
                 value={flexGrow || 0}
                 onChange={(e) => setProp((props: ContainerProps) => (props.flexGrow = Number(e.target.value)))}
               />
-              <span className="text-[10px] text-muted-foreground leading-tight">
+              <span className="text-[10px] text-muted-foreground leading-tight truncate">
                 0=Fijo, 1=Ocupar espacio
               </span>
             </div>
@@ -461,42 +461,37 @@ const ContainerSettings = () => {
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Separación</span>
+                  <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Separación / Espacio</span>
                 </TooltipTrigger>
-                <TooltipContent><p>Gap</p></TooltipContent>
+                <TooltipContent><p>Gap / Padding</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </Label>
-          <Input
-            type="number"
-            className="h-8"
-            min={0}
-            value={gap || 0}
-            onChange={(e) => setProp((props: ContainerProps) => (props.gap = Number(e.target.value)))}
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative">
+              <Label className="text-[10px] text-muted-foreground absolute -top-4 left-0">Gap</Label>
+              <Input
+                type="number"
+                className="h-8"
+                min={0}
+                value={gap || 0}
+                onChange={(e) => setProp((props: ContainerProps) => (props.gap = Number(e.target.value)))}
+              />
+            </div>
+            <div className="relative">
+              <Label className="text-[10px] text-muted-foreground absolute -top-4 left-0">Padding</Label>
+              <Input
+                type="number"
+                className="h-8"
+                min={0}
+                value={padding || 0}
+                onChange={(e) => setProp((props: ContainerProps) => (props.padding = Number(e.target.value)))}
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-1">
-          <Label className="text-xs">
-            <TooltipProvider delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Espacio Interno</span>
-                </TooltipTrigger>
-                <TooltipContent><p>Padding</p></TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Label>
-          <Input
-            type="number"
-            className="h-8"
-            min={0}
-            value={padding || 0}
-            onChange={(e) => setProp((props: ContainerProps) => (props.padding = Number(e.target.value)))}
-          />
-        </div>
-
-        <div className="space-y-2">
+        <div className="space-y-2 pt-2">
           <Label className="text-xs font-semibold">
             <TooltipProvider delayDuration={0}>
               <Tooltip>
@@ -598,9 +593,7 @@ const ContainerSettings = () => {
         {displayName && displayName.includes("Body") && (
           <div className="pt-2">
             <p className="text-[10px] text-blue-500 font-medium bg-blue-50 p-2 rounded border border-blue-100 dark:bg-blue-950/30 dark:border-blue-800">
-              ℹ️ Si estableces una altura fija (ej: 70%), recuerda ajustar "Flex Grow" a 0.
-              <br />
-              Header + Body + Footer = 100%.
+              ℹ️ Body: Si usas altura fija, pon "Flex Grow" a 0.
             </p>
           </div>
         )}
@@ -650,7 +643,7 @@ const ContainerSettings = () => {
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 items-end">
               <div className="space-y-1">
                 <Label className="text-xs">Color Borde</Label>
                 <div className="flex gap-2">
@@ -662,7 +655,7 @@ const ContainerSettings = () => {
                       onChange={(e) => setProp((props: ContainerProps) => (props.borderColor = e.target.value))}
                     />
                   </div>
-                  {/* Ocultamos el hex del borde para ahorrar espacio si es muy estrecho, o usamos flex-1 */}
+                  {/* Min width 0 essential for flex items to truncate in grid */}
                   <Input
                     type="text"
                     className="h-8 text-xs flex-1 min-w-0"

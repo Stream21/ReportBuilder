@@ -8,10 +8,26 @@ import ContentEditable from "react-contenteditable"
 import React, { useEffect, useState } from "react"
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { APP_VARIABLES } from "@/lib/constants/variables"
+import { Separator } from "@/components/ui/separator"
 import { MOCK_DATA } from "@/lib/mock-data"
-
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverAnchor,
+} from "@/components/ui/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 
 interface TextProps {
+  // ...
   text?: string
   fontSize?: number
   fontWeight?: string
@@ -121,6 +137,7 @@ export function Text({
           cursor: enabled ? "text" : "default",
           whiteSpace: "pre-wrap",
           outline: "none",
+          lineHeight: 1.5,
         }}
         className={`${!editable ? "pointer-events-none" : ""}`}
       />
@@ -156,14 +173,91 @@ const TextSettings = () => {
     marginRight: node.data.props.marginRight
   }))
 
+
+
+  // ... (previous imports)
+
+  const [open, setOpen] = useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  // Function to handle variable insertion
+  const handleVariableSelect = (variable: string) => {
+    setProp((props: TextProps) => {
+      const currentText = props.text || ""
+      // If triggered by @, replace the @ with the variable
+      if (currentText.endsWith("@")) {
+        props.text = currentText.slice(0, -1) + `{{ ${variable} }}`
+      } else {
+        // Just append if selected manually (though we prioritize @ trigger)
+        props.text = currentText + `{{ ${variable} }}`
+      }
+    })
+    setOpen(false)
+    // Restore focus to input to continue typing
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }, 0)
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>Texto</Label>
-        <Input
-          value={text || ""}
-          onChange={(e) => setProp((props: TextProps) => (props.text = e.target.value))}
-        />
+        <div className="space-y-2">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverAnchor asChild>
+              <div className="relative">
+                <Input
+                  ref={inputRef}
+                  value={text || ""}
+                  onChange={(e) => {
+                    const newVal = e.target.value
+                    setProp((props: TextProps) => (props.text = newVal))
+
+                    // Trigger autocomplete on '@'
+                    if (newVal.endsWith("@")) {
+                      setOpen(true)
+                    }
+                  }}
+                  className="pr-8"
+                  placeholder="Escribe @ para variables..."
+                />
+                <button
+                  onClick={() => setOpen(true)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                  title="Insertar variable"
+                >
+                  <span className="text-xs font-bold">@</span>
+                </button>
+              </div>
+            </PopoverAnchor>
+            <PopoverContent className="p-0 w-[250px]" align="start">
+              <Command>
+                <CommandInput placeholder="Buscar variable..." />
+                <CommandList>
+                  <CommandEmpty>No se encontraron variables.</CommandEmpty>
+                  {APP_VARIABLES.map((category) => (
+                    <CommandGroup key={category.category} heading={category.category}>
+                      {category.items.map((item) => (
+                        <CommandItem
+                          key={item}
+                          value={item}
+                          onSelect={() => handleVariableSelect(item)}
+                          className="text-xs cursor-pointer"
+                        >
+                          {item}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <p className="text-[10px] text-muted-foreground">Tip: Escribe <b>@</b> para insertar variables.</p>
+        </div>
       </div>
 
       <div className="space-y-2">

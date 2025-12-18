@@ -22,6 +22,7 @@ export interface Template {
   reportType: string
   paperType: "continuous" | "a4" | "a5" | "letter" | "label" | "email" | "sms"
   orientation: "portrait" | "landscape"
+  paperWidth?: number
   margins: { top: number; right: number; bottom: number; left: number }
   padding: { top: number; right: number; bottom: number; left: number }
   fontFamily: string

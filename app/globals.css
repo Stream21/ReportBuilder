@@ -189,6 +189,8 @@
   aside,
   button,
   .no-print,
+  .no-print-wrapper>*:not(.flex-1),
+  /* Ocultar todo lo que no sea el área principal */
   .craftjs-indicator,
   .craftjs-node-outline,
   .hidden-header,

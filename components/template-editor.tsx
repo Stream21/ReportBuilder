@@ -7,7 +7,7 @@ import { EditorToolbar } from "@/components/editor/editor-toolbar"
 import { ComponentPanel } from "@/components/editor/component-panel"
 import { LayersPanel } from "@/components/editor/layers-panel"
 import { EditorCanvas } from "@/components/editor/editor-canvas"
-import { RightSidebar } from "@/components/editor/right-sidebar"
+
 import {
   Container,
   Text,
@@ -21,7 +21,7 @@ import {
   GioComponent
 } from "@/components/editor/components"
 import { RenderNode } from "@/components/editor/render-node" // New
-import { CustomDragLayer } from "@/components/editor/custom-drag-layer"
+
 import { DragProvider } from "@/components/editor/drag-context"
 
 
@@ -52,15 +52,20 @@ export function TemplateEditor({ template, onTemplateUpdate }: TemplateEditorPro
           Page,
         }}
         onRender={RenderNode} // New
+        indicator={{
+          success: "#3b82f6", // Primary blue for visibility
+          thickness: 3
+        }}
       >
-        <div className="h-full flex flex-col bg-background craftjs-renderer">
+        <div className="h-full flex flex-col bg-background craftjs-renderer no-print-wrapper">
           <EditorToolbar
+            className="no-print"
             template={template}
             zoom={zoom}
             onZoomChange={setZoom}
             onToggleVariables={() => { }} // Ya no se usa individualmente
             onToggleComponents={() => setShowComponents(!showComponents)}
-            showVariables={true} // Siempre visible en el sidebar
+
             showComponents={showComponents}
           />
 
@@ -69,14 +74,14 @@ export function TemplateEditor({ template, onTemplateUpdate }: TemplateEditorPro
               <ComponentPanel template={template} onTemplateUpdate={onTemplateUpdate} />
             )}
 
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0">
               <EditorCanvas template={template} zoom={zoom} />
             </div>
 
-            <RightSidebar template={template} onTemplateUpdate={onTemplateUpdate} />
+
           </div>
         </div>
-        <CustomDragLayer />
+
       </Editor>
     </DragProvider>
   )

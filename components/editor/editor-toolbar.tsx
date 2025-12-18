@@ -100,7 +100,7 @@ export function EditorToolbar({
           <ZoomOut className="w-4 h-4" />
         </Button>
         <span className="text-sm font-medium min-w-[60px] text-center text-foreground">{zoom}%</span>
-        <Button variant="ghost" size="sm" onClick={() => onZoomChange(Math.min(200, zoom + 25))}>
+        <Button variant="ghost" size="sm" onClick={() => onZoomChange(Math.min(500, zoom + 25))}>
           <ZoomIn className="w-4 h-4" />
         </Button>
 
