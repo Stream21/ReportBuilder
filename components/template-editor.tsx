@@ -63,7 +63,6 @@ export function TemplateEditor({ template, onTemplateUpdate }: TemplateEditorPro
             template={template}
             zoom={zoom}
             onZoomChange={setZoom}
-            onToggleVariables={() => { }} // Ya no se usa individualmente
             onToggleComponents={() => setShowComponents(!showComponents)}
 
             showComponents={showComponents}

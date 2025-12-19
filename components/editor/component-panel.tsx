@@ -39,7 +39,7 @@ export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelPro
 
   useEffect(() => {
     if (selectedId) {
-      setActiveTab("edit")
+      setActiveTab((prev) => (prev === "layers" ? "layers" : "edit"))
     }
   }, [selectedId])
 

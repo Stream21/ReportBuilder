@@ -227,7 +227,7 @@ const ContainerSettings = () => {
           <TooltipProvider delayDuration={0}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="cursor-help decoration-dashed underline-offset-4 decoration-muted-foreground/30 hover:underline">Distribución</span>
+                <span className="cursor-help decoration-dashed underline-offset-4 decoration-muted-foreground/30 hover:underline">Distribución (Layout)</span>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Layout</p>
@@ -242,7 +242,7 @@ const ContainerSettings = () => {
           <div className="space-y-3 pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-xs">Columnas</Label>
+                <Label className="text-xs">Columnas (Columns)</Label>
                 <span className="text-xs font-mono bg-primary/10 text-primary px-2 py-0.5 rounded">{columns}</span>
               </div>
               <input
@@ -276,7 +276,7 @@ const ContainerSettings = () => {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-xs">Filas</Label>
+                <Label className="text-xs">Filas (Rows)</Label>
                 <span className="text-xs font-mono bg-primary/10 text-primary px-2 py-0.5 rounded">{rows}</span>
               </div>
               <input
@@ -323,7 +323,7 @@ const ContainerSettings = () => {
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Dirección</span>
+                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Dirección (Direction)</span>
                       </TooltipTrigger>
                       <TooltipContent><p>Direction</p></TooltipContent>
                     </Tooltip>
@@ -348,7 +348,7 @@ const ContainerSettings = () => {
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Salto de Línea</span>
+                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Salto de Línea (Wrap)</span>
                       </TooltipTrigger>
                       <TooltipContent><p>Wrap</p></TooltipContent>
                     </Tooltip>
@@ -375,7 +375,7 @@ const ContainerSettings = () => {
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Alin. Horiz.</span>
+                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Alin. Horiz. (Justify)</span>
                       </TooltipTrigger>
                       <TooltipContent><p>Justify Content</p></TooltipContent>
                     </Tooltip>
@@ -403,7 +403,7 @@ const ContainerSettings = () => {
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Alin. Vert.</span>
+                        <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Alin. Vert. (Align)</span>
                       </TooltipTrigger>
                       <TooltipContent><p>Align Items</p></TooltipContent>
                     </Tooltip>
@@ -434,7 +434,7 @@ const ContainerSettings = () => {
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Expandir</span>
+                    <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Expandir (Flex Grow)</span>
                   </TooltipTrigger>
                   <TooltipContent><p>Flex Grow</p></TooltipContent>
                 </Tooltip>
@@ -461,7 +461,7 @@ const ContainerSettings = () => {
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Separación / Espacio</span>
+                  <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Separación / Espacio (Gap/Padding)</span>
                 </TooltipTrigger>
                 <TooltipContent><p>Gap / Padding</p></TooltipContent>
               </Tooltip>
@@ -496,7 +496,7 @@ const ContainerSettings = () => {
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Márgenes Externos</span>
+                  <span className="cursor-help hover:underline decoration-dashed underline-offset-2">Márgenes Externos (Margins)</span>
                 </TooltipTrigger>
                 <TooltipContent><p>Margin</p></TooltipContent>
               </Tooltip>
@@ -504,7 +504,7 @@ const ContainerSettings = () => {
           </Label>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">Arriba</Label>
+              <Label className="text-[10px] text-muted-foreground">Arriba (Top)</Label>
               <Input
                 type="number"
                 className="h-8 text-xs"
@@ -514,7 +514,7 @@ const ContainerSettings = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">Derecha</Label>
+              <Label className="text-[10px] text-muted-foreground">Derecha (Right)</Label>
               <Input
                 type="number"
                 className="h-8 text-xs"
@@ -524,7 +524,7 @@ const ContainerSettings = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">Abajo</Label>
+              <Label className="text-[10px] text-muted-foreground">Abajo (Bottom)</Label>
               <Input
                 type="number"
                 className="h-8 text-xs"
@@ -534,7 +534,7 @@ const ContainerSettings = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">Izquierda</Label>
+              <Label className="text-[10px] text-muted-foreground">Izquierda (Left)</Label>
               <Input
                 type="number"
                 className="h-8 text-xs"
@@ -549,12 +549,12 @@ const ContainerSettings = () => {
 
       <div className="space-y-3">
         {layout !== "grid" && (
-          <h4 className="text-xs font-semibold uppercase text-muted-foreground pb-2 border-b">Tamaño</h4>
+          <h4 className="text-xs font-semibold uppercase text-muted-foreground pb-2 border-b">Tamaño (Size)</h4>
         )}
         {layout !== "grid" && (
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Ancho</Label>
+              <Label className="text-xs">Ancho (Width)</Label>
               <Input
                 className="h-8"
                 placeholder="100%, 200px..."
@@ -563,7 +563,7 @@ const ContainerSettings = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Alto</Label>
+              <Label className="text-xs">Alto (Height)</Label>
               <Input
                 className="h-8"
                 placeholder="auto, 50px..."
@@ -579,7 +579,7 @@ const ContainerSettings = () => {
         {/* Solo mostrar Min Height si no es Grid, o si es grid quizás no haga falta si se generan celdas auto */}
         {layout !== "grid" && (
           <div className="space-y-1">
-            <Label className="text-xs">Altura Mínima</Label>
+            <Label className="text-xs">Altura Mínima (Min Height)</Label>
             <Input
               className="h-8"
               placeholder="50px"
@@ -602,10 +602,10 @@ const ContainerSettings = () => {
       <div className="space-y-3">
         {layout !== "grid" && (
           <>
-            <h4 className="text-xs font-semibold uppercase text-muted-foreground pb-2 border-b">Estilo</h4>
+            <h4 className="text-xs font-semibold uppercase text-muted-foreground pb-2 border-b">Estilo (Style)</h4>
 
             <div className="space-y-1">
-              <Label className="text-xs">Color Fondo</Label>
+              <Label className="text-xs">Color Fondo (Background)</Label>
               <div className="flex gap-2">
                 <div className="relative w-8 h-8 rounded border overflow-hidden shrink-0">
                   <Input
@@ -626,7 +626,7 @@ const ContainerSettings = () => {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs">Sombra</Label>
+              <Label className="text-xs">Sombra (Shadow)</Label>
               <Select
                 value={boxShadow || "none"}
                 onValueChange={(value) => setProp((props: ContainerProps) => (props.boxShadow = value as any))}
@@ -645,7 +645,7 @@ const ContainerSettings = () => {
 
             <div className="grid grid-cols-2 gap-3 items-end">
               <div className="space-y-1">
-                <Label className="text-xs">Color Borde</Label>
+                <Label className="text-xs">Color Borde (Border)</Label>
                 <div className="flex gap-2">
                   <div className="relative w-8 h-8 rounded border overflow-hidden shrink-0">
                     <Input
@@ -666,7 +666,7 @@ const ContainerSettings = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Grosor (px)</Label>
+                <Label className="text-xs">Grosor (Width px)</Label>
                 <Input
                   type="number"
                   className="h-8"
@@ -677,7 +677,7 @@ const ContainerSettings = () => {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs">Radio (Border Radius px)</Label>
+              <Label className="text-xs">Radio (Radius px)</Label>
               <Input
                 type="number"
                 className="h-8"

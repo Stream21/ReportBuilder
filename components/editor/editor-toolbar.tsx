@@ -10,24 +10,29 @@ interface EditorToolbarProps {
   template: Template
   zoom: number
   onZoomChange: (zoom: number) => void
-  onToggleVariables: () => void
   onToggleComponents: () => void
-  showVariables: boolean
   showComponents: boolean
+  className?: string
 }
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown, Cloud, Globe, History } from "lucide-react"
 
-import { TwigExportModal } from "./twig-export-modal"
-import { generateTwig } from "@/lib/twig-generator"
 
 export function EditorToolbar({
   template,
   zoom,
   onZoomChange,
-  onToggleVariables,
   onToggleComponents,
-  showVariables,
   showComponents,
+  className,
 }: EditorToolbarProps) {
   const { actions, query, canUndo, canRedo, enabled } = useEditor((state, query) => ({
     canUndo: query.history.canUndo(),
@@ -35,23 +40,22 @@ export function EditorToolbar({
     enabled: state.options.enabled,
   }))
 
-  const [showTwigModal, setShowTwigModal] = useState(false)
-  const [twigCode, setTwigCode] = useState("")
 
   const handleSave = () => {
     const json = query.serialize()
     console.log("Guardando plantilla:", json)
     // Aquí enviarías al backend de Symfony
-    alert("Plantilla guardada correctamente")
+    alert("Plantilla guardada (Draft)")
   }
 
-  const handleExportTwig = () => {
-    // Get raw nodes which have the 'data' structure our generator expects
-    const nodes = query.getState().nodes
-    const code = generateTwig(nodes as any)
-    setTwigCode(code)
-    setShowTwigModal(true)
+  const handlePublish = () => {
+    const json = query.serialize()
+    console.log("Publicando plantilla:", json)
+    alert("Plantilla Publicada (v" + template.version + ")")
   }
+
+
+
 
 
   useEffect(() => {
@@ -74,12 +78,62 @@ export function EditorToolbar({
     }, 100)
   }
 
+  // MOCK: Mock revisions data
+  const mockVersions = [
+    { version: "1.2", date: "Hace 2 min", status: "draft", current: true },
+    { version: "1.1", date: "Ayer, 15:30", status: "published", current: false },
+    { version: "1.0", date: "12 Oct, 09:00", status: "published", current: false },
+  ]
+
+  const handleVersionChange = (ver: string) => {
+    alert(`Cambiando a versión v${ver}... (Simulación)\n\nEn producción esto cargaría el JSON histórico.`)
+  }
+
   return (
-    <div className="h-14 bg-card border-b border-border flex items-center justify-between px-4">
+    <div className={`h-14 bg-card border-b border-border flex items-center justify-between px-4 ${className || ""}`}>
       <div className="flex items-center gap-4">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">{template.name}</h2>
-          <p className="text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-foreground">{template.name}</h2>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1 bg-muted px-2 py-0.5 rounded-full border hover:bg-muted/80 transition-colors outline-none focus:ring-2 focus:ring-ring">
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase">{template.status}</span>
+                  <div className="w-px h-3 bg-border mx-1" />
+                  <span className="text-xs font-medium">v{template.version}</span>
+                  <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Historial de Versiones</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {mockVersions.map((ver) => (
+                  <DropdownMenuItem
+                    key={ver.version}
+                    className="flex flex-col items-start gap-1 cursor-pointer"
+                    onClick={() => handleVersionChange(ver.version)}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className={`font-medium ${ver.current ? "text-primary" : ""}`}>
+                        v{ver.version}
+                        {ver.current && " (Actual)"}
+                      </span>
+                      <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded ${ver.status === "published" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
+                        {ver.status}
+                      </span>
+                    </div>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <History className="w-3 h-3" />
+                      {ver.date}
+                    </span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
             {template.paperType.toUpperCase()} - {template.orientation}
           </p>
         </div>
@@ -111,40 +165,24 @@ export function EditorToolbar({
           Componentes
         </Button>
 
-
-
-        <Button variant={showVariables ? "secondary" : "ghost"} size="sm" onClick={onToggleVariables}>
-          <Database className="w-4 h-4 mr-2" />
-          Variables
-        </Button>
-
         <div className="w-px h-6 bg-border mx-2" />
 
-        {/* Removed functionality of manual Edit/Preview toggle as requested by user. 
-            Now "Visualizar" handles the preview/print state automatically. 
-        */}
-
-        <Button variant="default" size="sm" onClick={handleVisualizar}>
+        <Button variant="outline" size="sm" onClick={handleVisualizar}>
           <Eye className="w-4 h-4 mr-2" />
           Visualizar
         </Button>
 
-        <Button variant="ghost" size="sm" onClick={handleExportTwig}>
-          <Code className="w-4 h-4 mr-2" />
-          Exportar Twig
-        </Button>
-
-        <Button onClick={handleSave} size="sm">
+        <Button variant="ghost" size="sm" onClick={handleSave}>
           <Save className="w-4 h-4 mr-2" />
           Guardar
         </Button>
+
+        <Button onClick={handlePublish} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+          <Globe className="w-4 h-4 mr-2" />
+          Publicar
+        </Button>
       </div>
 
-      <TwigExportModal
-        open={showTwigModal}
-        onOpenChange={setShowTwigModal}
-        code={twigCode}
-      />
     </div>
   )
 }
