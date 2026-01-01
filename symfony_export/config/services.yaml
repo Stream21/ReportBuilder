@@ -1,0 +1,48 @@
+# config/services.yaml
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # 1. Register Controllers
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    # 2. Register Services and Renderers
+    App\Service\:
+        resource: '../src/Service/'
+
+    App\Renderer\:
+        resource: '../src/Renderer/'
+        tags: ['app.component_renderer'] # Auto-tagging via instanceof is also possible in newer Symfony
+
+    # 3. Explicit tagging if not using autoconfigure
+    _instanceof:
+        App\Renderer\ComponentRendererInterface:
+            tags: ['app.component_renderer']
+        
+        App\Channel\ChannelInterface:
+            tags: ['app.channel']
+
+    # 4. Bind Generic Interfaces
+    App\Port\PdfGeneratorInterface: '@App\Adapter\SnappyPdfAdapter'
+
+    # 5. Inject Tagged Iterators
+    App\Service\ComponentFactory:
+        arguments:
+            $renderers: !tagged_iterator app.component_renderer
+
+    App\Service\ChannelFactory:
+        arguments:
+            $channels: !tagged_iterator app.channel
+
+    # 6. Data Providers
+    App\Provider\:
+        resource: '../src/Provider/'
+        tags: ['app.data_provider']
+
+    App\Service\DataProviderFactory:
+        arguments:
+            $providers: !tagged_iterator app.data_provider

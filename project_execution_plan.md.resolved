@@ -1,0 +1,158 @@
+# Plan Maestro de Ejecución: Generador de Informes (Full Stack)
+
+**Versión**: 2.0 (Definitiva)
+**Alcance**: Frontend (Next.js/React), Backend (Symfony 6), Infraestructura y Gestión.
+
+Este documento detalla la hoja de ruta completa para transformar el MVP actual en una plataforma de generación de documentos de nivel empresarial. Cubre todas las capas funcionales, técnicas y de gestión.
+
+---
+
+## 1. Visión y Stack Tecnológico
+
+La plataforma permite diseñar documentos dinámicos (Facturas, Nóminas) visualmente y generarlos masivamente en PDF, Email o SMS usando datos reales del ERP.
+
+| Capa | Tecnología | Detalle | Justificación |
+| :--- | :--- | :--- | :--- |
+| **Frontend** | **Next.js 14** | App Router, React 18 | SSR, SEO amigable, enrutamiento robusto. |
+| **Editor** | **Craft.js** | 0.2.x | Motor Drag & Drop extensible para React. |
+| **UI Lib** | **Shadcn/UI** | Radix + Tailwind | Componentes accesibles y personalizables. |
+| **Backend** | **Symfony 7** | API Platform | Framework PHP estándar enterprise. |
+| **Render** | **Twig 3 + Snappy** | wkhtmltopdf | Motor de plantillas seguro y conversión PDF fiel. |
+| **Base de Datos** | **PostgreSQL 15** | JSONB nativo | Mejor manejo de documentos JSON que MySQL. |
+| **Mensajería** | **RabbitMQ** | Symfony Messenger | Para generación asíncrona de PDFs masivos. |
+| **Storage** | **S3 / MinIO** | Object Storage | Almacenamiento de assets (logos) y PDFs generados. |
+
+---
+
+## 2. Modelo de Datos (Esquema Relacional Extendido)
+
+Estrucutra de BBDD necesaria para soportar versionado, estados y organización.
+
+### Módulo Core
+*   **`report_type`**: Tipos de informe disponibles.
+    *   [id](file:///g:/Workspace/Proyects/Invoice_builder/components/editor/components/divider.tsx#17-43) (PK), `code` (slug), [name](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Model/OutputResult.php#23-27), `schema_definition` (JSON Schema para validar datos de entrada).
+*   **`template`**: Entidad principal.
+    *   [id](file:///g:/Workspace/Proyects/Invoice_builder/components/editor/components/divider.tsx#17-43) (UUID), `project_id`, `report_type_id` (FK), [name](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Model/OutputResult.php#23-27), `description`.
+    *   `current_version_id` (FK), `is_archived`, `created_at`, `updated_at`.
+*   **`template_version`**: Histórico de cambios y "Snapshots" para publicación.
+    *   [id](file:///g:/Workspace/Proyects/Invoice_builder/components/editor/components/divider.tsx#17-43) (UUID), `template_id` (FK).
+    *   `version_number` (Int), `status` (DRAFT, PUBLISHED, DEPRECATED).
+    *   `content_json` (JSONB - Nodos Craft.js).
+    *   `config_json` (JSONB - Papel, márgenes, orientación).
+    *   `commit_message` (Texto), `author_id`.
+
+### Módulo Assets
+*   **`asset`**: Imágenes y recursos estáticos.
+    *   [id](file:///g:/Workspace/Proyects/Invoice_builder/components/editor/components/divider.tsx#17-43), `filename`, `mime_type`, `s3_path`, `public_url`.
+
+### Módulo Auditoría
+*   **`generation_log`**: Registro de documentos generados.
+    *   [id](file:///g:/Workspace/Proyects/Invoice_builder/components/editor/components/divider.tsx#17-43), `template_version_id`, `entity_id` (ID Factura), `channel` (PDF/Email), `status`, `duration_ms`.
+
+---
+
+## 3. Especificación Funcional (Casos de Uso)
+
+Detalle de lo que el sistema debe hacer, más allá de "editar".
+
+### 3.1 Ciclo de Vida de Plantilla
+1.  **Crear Plantilla**: El usuario elige un "Tipo de Informe" (ej. Factura) y configura el papel inicial.
+2.  **Edición (Draft)**:
+    *   Auto-guardado en el navegador (LocalStorage).
+    *   **Guardar Borrador**: Envía el JSON al backend, actualiza el `template_version` en estado DRAFT.
+3.  **Gestión de Versiones**:
+    *   **Publicar**: Congela el DRAFT actual, crea una `template_version` nueva con estado PUBLISHED.
+    *   **Rollback**: Permite volver a una versión anterior y crear un nuevo DRAFT desde ella.
+4.  **Simulación (Preview)**:
+    *   El editor inyecta datos "Dummy" definidos en el [DataProvider](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Service/DataProviderFactory.php#8-28) para ver cómo queda la factura real.
+
+### 3.2 Gestión de Assets
+*   **Subida de Logos**: Drag & drop de imágenes. Se suben a S3, se obtiene URL pública y se inserta en el JSON del editor.
+
+### 3.3 Dashboard y Organización
+*   **Filtrado avanzado**: Por tipo de informe, fecha, estado (Publicado/Borrador).
+*   **Duplicado**: Clonar una plantilla existente para hacer variaciones A/B.
+
+---
+
+## 4. Especificación Técnica de Componentes (Backend)
+
+Propiedades exhaustivas que el [ComponentRenderer](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Renderer/ComponentRendererInterface.php#5-21) de Symfony debe soportar.
+
+### 4.1 Page (Root)
+*   **Layout**: `padding` (top, right, bottom, left), `backgroundColor`.
+*   **Config**: `paperSize` (A4/Letter/etc), `orientation`, `margins` (físicos de impresión).
+*   **Watermark**: `url`, `opacity`, `position`.
+
+### 4.2 Container / Grid
+*   **Flexbox**: `direction` (row/col), `justify` (start/center/end/between), `align` (start/center/stretch), `wrap`, `gap`.
+*   **Grid CSS**: `columns` (ej. '1fr 2fr'), `rows`, `autoFlow`.
+*   **Estilo**: `border` (width, style, color, radius), `boxShadow`, `background`, `width` (%, px), `height`, `minHeight`.
+*   **Visibilidad**: `hideOnPrint` (booleano para notas internas), `condition` (ej. "mostrar si total > 1000").
+
+### 4.3 Text / RichText
+*   **Tipografía**: `fontFamily` (Google Fonts), `fontSize`, `fontWeight`, `fontStyle` (italic), `textDecoration` (underline), `lineHeight`, `letterSpacing`.
+*   **Párrafo**: `textAlign` (left/center/right/justify), `textIndent`.
+*   **Datos**: Interpolación `{{ variable }}`. Formateadores Twig `{{ fecha | date('d/m/Y') }}`.
+
+### 4.4 Table (Dynamic List)
+*   **Data Source**: Clave del array a iterar (ej. `items`, `taxes`).
+*   **Estilos Header**: `bg`, `text`, `font`, `border`.
+*   **Estilos Row**: `bg` (odd/even), `padding`, `border` (horizontal/vertical).
+*   **Columnas**: Definición de ancho (`width`), alineación y contenido por celda.
+*   **Agrupación**: (Futuro) Agrupar por categoría con subtotales.
+
+### 4.5 Image / Logo
+*   **Source**: URL estática o dinámica (`{{ company.logo }}`).
+*   **Dimensiones**: `width`, `height`, `objectFit` (contain/cover).
+*   **Borde**: Radius (redondeado/círculo).
+
+---
+
+## 5. Roadmap JIRA (Sprints)
+
+Planificación detallada para el equipo.
+
+### Eje 1: Backend Foundation (Sprint 1-2)
+*   **[BE-01] Configuración Inicial**: Symfony 7, Docker, PostgreSQL.
+*   **[BE-02] Modelo de Datos**: Entidades [Template](file:///g:/Workspace/Proyects/Invoice_builder/app/page.tsx#19-31), `TemplateVersion`, [ReportType](file:///g:/Workspace/Proyects/Invoice_builder/app/page.tsx#12-18). Migraciones Doctrine.
+*   **[BE-03] Core API**: Endpoints REST para CRUD de templates (`GET`, [POST](file:///g:/Workspace/Proyects/Invoice_builder/app/api/render-pdf/route.ts#10-75), `PATCH`).
+*   **[BE-04] PDF Engine**: Integración `knplabs/knp-snappy-bundle` y binarios wkhtmltopdf en Docker.
+
+### Eje 2: Core Rendering Engine (Sprint 3-4)
+*   **[CORE-01] Component Interfaces**: [ComponentRendererInterface](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Renderer/ComponentRendererInterface.php#5-21), `Context`.
+*   **[CORE-02] Recursive Builder**: Implementar [ContentBuilder](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Service/ContentBuilder.php#5-38) para recorrer el árbol JSON.
+*   **[CORE-03] Basic Renderers**: Implementar [TextRenderer](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Renderer/TextRenderer.php#7-49), `ImageRenderer` (Base64/URL).
+*   **[CORE-04] Layout Renderers**: [ContainerRenderer](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Renderer/ContainerRenderer.php#5-64) con soporte total de Flexbox y Grid. *Critico*.
+*   **[CORE-05] Complex Renderers**: [TableRenderer](file:///g:/Workspace/Proyects/Invoice_builder/symfony_export/src/Renderer/TableRenderer.php#7-38) con lógica de loops Twig.
+
+### Eje 3: Frontend & Editor Experience (Sprint 4-5)
+*   **[FE-01] API Integration**: Conectar Dashboard (Listados) con API Real.
+*   **[FE-02] Save & Publish**: Implementar flujo "Guardar Borrador" vs "Publicar" en el Toolbar.
+*   **[FE-03] Real Preview**: Botón "Ver PDF" que llama al backend real en lugar del simulador local.
+*   **[FE-04] Asset Manager**: Modal para subir imágenes y insertarlas en el editor.
+
+### Eje 4: Data Layer & Advanced Features (Sprint 6)
+*   **[DATA-01] Data Providers**: Implementar patrón Strategy para `InvoiceProvider`, `PayrollProvider`.
+*   **[DATA-02] Database Seeder**: Scripts para cargar datos de prueba reales.
+*   **[OPS-01] CI/CD**: Pipeline de despliegue y tests automáticos.
+
+---
+
+## 6. Servicios y API Endpoints
+
+Contrato API necesario para conectar Frontend y Backend.
+
+| Método | Endpoint | Descripción | Payload |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/templates` | Lista plantillas (con filtros) | - |
+| [POST](file:///g:/Workspace/Proyects/Invoice_builder/app/api/render-pdf/route.ts#10-75) | `/api/v1/templates` | Crea nueva plantilla | `{ name, report_type, ... }` |
+| `GET` | `/api/v1/templates/{id}` | Obtiene JSON de la última versión | - |
+| `PATCH` | `/api/v1/templates/{id}` | Guarda borrador (Draft) | `{ content_json, config_json }` |
+| [POST](file:///g:/Workspace/Proyects/Invoice_builder/app/api/render-pdf/route.ts#10-75) | `/api/v1/templates/{id}/publish` | Publica versión actual | `{ commit_message }` |
+| [POST](file:///g:/Workspace/Proyects/Invoice_builder/app/api/render-pdf/route.ts#10-75) | `/api/v1/print/{templateId}` | Genera PDF final | `{ entity_id: "INV-100" }` |
+| [POST](file:///g:/Workspace/Proyects/Invoice_builder/app/api/render-pdf/route.ts#10-75) | `/api/v1/preview` | Genera PDF temporal (Borrador) | `{ content_json, mock_data }` |
+
+---
+
+Este plan cubre todos los huecos: define el modelo de datos real, especifica el ciclo de vida completo de la plantilla (no solo la edición), detalla exhaustivamente las propiedades para el backend y organiza el trabajo en tareas técnicas concretas.

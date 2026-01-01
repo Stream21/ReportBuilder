@@ -53,6 +53,47 @@ export function EditorToolbar({
     setShowTwigModal(true)
   }
 
+  const [isGenerating, setIsGenerating] = useState(false)
+
+  const handleDownloadPDF = async () => {
+    try {
+      setIsGenerating(true)
+      const nodes = query.getState().nodes
+
+      // Datos de prueba (estos vendrían de Symfony en un caso real de edición, 
+      // o del formulario de "Visualizar" que crearemos después)
+      const mockData = {
+        invoice: { number: '2024-001', total: '150.00€', date: '25/12/2024' },
+        empresa: { logo: 'https://via.placeholder.com/150x50?text=LOGO+EMPRESA' },
+        items: [
+          { name: 'Consultoría Estratégica', quantity: 1, price: 100.00, total: 100.00 },
+          { name: 'Soporte Técnico', quantity: 2, price: 25.00, total: 50.00 }
+        ]
+      }
+
+      const response = await fetch('/api/render-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nodes, data: mockData })
+      })
+
+      if (!response.ok) throw new Error('Error generando PDF')
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `factura-bff-${Date.now()}.pdf`
+      link.click()
+
+    } catch (e) {
+      console.error(e)
+      alert("Error al generar el PDF. Revisa la consola.")
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
 
   useEffect(() => {
     const handleAfterPrint = () => {
@@ -127,6 +168,16 @@ export function EditorToolbar({
         <Button variant="default" size="sm" onClick={handleVisualizar}>
           <Eye className="w-4 h-4 mr-2" />
           Visualizar
+        </Button>
+
+
+        <Button variant="outline" size="sm" onClick={handleDownloadPDF} disabled={isGenerating}>
+          {isGenerating ? (
+            <span className="animate-spin mr-2">⏳</span>
+          ) : (
+            <Printer className="w-4 h-4 mr-2" />
+          )}
+          Simular PDF (BFF)
         </Button>
 
         <Button variant="ghost" size="sm" onClick={handleExportTwig}>

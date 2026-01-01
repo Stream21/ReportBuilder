@@ -1,0 +1,49 @@
+{# templates/components/table.html.twig #}
+<div style="width: 100%; overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: {{ props.fontSize }}px;">
+        <thead>
+            <tr>
+                {% for header in props.data[0] %}
+                    <th style="
+                        background-color: {{ props.headerBgColor }};
+                        color: {{ props.headerTextColor }};
+                        padding: {{ props.padding }}px;
+                        border: 1px solid {{ props.borderColor }};
+                        text-align: left;
+                        font-weight: bold;
+                    ">
+                        {{ header|raw }}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {# Determine if we are iterating over dynamic items or static rows #}
+            {# Logic: if we have 'items' context AND the table looks like an items list #}
+            
+            {% if items is not empty %}
+                {# Dynamic Mode: Loop over Invoice Items #}
+                {% for item in items %}
+                    <tr style="background-color: {{ cycle([props.rowBgColor, props.alternateRowColor], loop.index0) }}">
+                        {# Need mapping logic: assuming column order matches item keys or simple iteration #}
+                        <td style="border: 1px solid {{ props.borderColor }}; padding: {{ props.padding }}px;">{{ item.name }}</td>
+                        <td style="border: 1px solid {{ props.borderColor }}; padding: {{ props.padding }}px;">{{ item.quantity }}</td>
+                        <td style="border: 1px solid {{ props.borderColor }}; padding: {{ props.padding }}px;">{{ item.price }} €</td>
+                        <td style="border: 1px solid {{ props.borderColor }}; padding: {{ props.padding }}px;">{{ item.quantity * item.price }} €</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                {# Static Mode: Render rows from Editor Data #}
+                {% for row in props.data|slice(1) %}
+                    <tr style="background-color: {{ cycle([props.rowBgColor, props.alternateRowColor], loop.index0) }}">
+                        {% for cell in row %}
+                             <td style="border: 1px solid {{ props.borderColor }}; padding: {{ props.padding }}px;">
+                                {{ cell|raw }}
+                             </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
