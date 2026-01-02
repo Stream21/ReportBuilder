@@ -7,6 +7,7 @@ import {
   Table,
   GioComponent,
   Divider,
+  LabelValue,
 } from "@/components/editor/components"
 import {
   Accordion,
@@ -94,6 +95,12 @@ export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelPro
           type: "text",
           icon: Type,
           ref: (ref: HTMLDivElement) => { connectors.create(ref, <Text text="Texto de ejemplo" />) },
+        },
+        {
+          name: "Etiqueta: Valor",
+          type: "label-value",
+          icon: Type,
+          ref: (ref: HTMLDivElement) => { connectors.create(ref, <Element canvas is={LabelValue} />) },
         },
         {
           name: "Tabla de Ítems",

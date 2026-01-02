@@ -18,7 +18,8 @@ import {
   Footer,
   Page,
   Divider,
-  GioComponent
+  GioComponent,
+  LabelValue,
 } from "@/components/editor/components"
 import { RenderNode } from "@/components/editor/render-node" // New
 
@@ -50,6 +51,7 @@ export function TemplateEditor({ template, onTemplateUpdate }: TemplateEditorPro
           Header,
           Footer,
           Page,
+          LabelValue,
         }}
         onRender={RenderNode} // New
         indicator={{
