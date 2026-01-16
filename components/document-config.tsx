@@ -17,18 +17,16 @@ export function DocumentConfig({ onComplete }: DocumentConfigProps) {
     name: "",
     paperType: "a4" as Template["paperType"],
     orientation: "portrait" as Template["orientation"],
+    paperWidth: 80,
+    dpi: 300,
     margins: { top: 20, right: 20, bottom: 20, left: 20 },
     padding: { top: 10, right: 10, bottom: 10, left: 10 },
   })
 
   const paperTypes = [
-    { value: "continuous", label: "Papel Continuo", description: "Sin límites de altura" },
     { value: "a4", label: "A4", description: "210 x 297 mm" },
     { value: "a5", label: "A5", description: "148 x 210 mm" },
-    { value: "letter", label: "Letter", description: "8.5 x 11 in" },
-    { value: "label", label: "Etiqueta", description: "Tamaño personalizado" },
-    { value: "email", label: "Email", description: "Formato HTML responsive" },
-    { value: "sms", label: "SMS", description: "Mensaje de texto corto" },
+    { value: "continuous", label: "Papel Continuo", description: "Impresora Térmica" },
   ]
 
   const handleSubmit = () => {
@@ -70,17 +68,15 @@ export function DocumentConfig({ onComplete }: DocumentConfigProps) {
                 <button
                   key={type.value}
                   onClick={() => setConfig({ ...config, paperType: type.value as Template["paperType"] })}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
-                    config.paperType === type.value
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  }`}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${config.paperType === type.value
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     <FileText
-                      className={`w-5 h-5 mt-0.5 ${
-                        config.paperType === type.value ? "text-primary" : "text-muted-foreground"
-                      }`}
+                      className={`w-5 h-5 mt-0.5 ${config.paperType === type.value ? "text-primary" : "text-muted-foreground"
+                        }`}
                     />
                     <div>
                       <div className="font-medium text-foreground">{type.label}</div>
@@ -92,45 +88,108 @@ export function DocumentConfig({ onComplete }: DocumentConfigProps) {
             </div>
           </Card>
 
-          <Card className="p-6 bg-card">
-            <h3 className="text-base font-semibold mb-4">Orientación</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setConfig({ ...config, orientation: "portrait" })}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  config.orientation === "portrait"
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <div
-                    className={`w-16 h-20 rounded border-2 ${
-                      config.orientation === "portrait" ? "border-primary" : "border-border"
-                    }`}
-                  />
-                  <span className="font-medium text-foreground">Vertical</span>
+          {config.paperType === "continuous" ? (
+            <Card className="p-6 bg-card">
+              <h3 className="text-base font-semibold mb-4">Ancho del Papel (mm)</h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { value: 58, label: "58mm (Estándar)" },
+                    { value: 80, label: "80mm (Estándar)" },
+                  ].map((size) => (
+                    <button
+                      key={size.value}
+                      onClick={() => setConfig({ ...config, paperWidth: size.value })}
+                      className={`p-4 rounded-lg border-2 transition-all ${config.paperWidth === size.value
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                        }`}
+                    >
+                      <span className="font-medium text-foreground">{size.label}</span>
+                    </button>
+                  ))}
                 </div>
-              </button>
-              <button
-                onClick={() => setConfig({ ...config, orientation: "landscape" })}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  config.orientation === "landscape"
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <div
-                    className={`w-20 h-16 rounded border-2 ${
-                      config.orientation === "landscape" ? "border-primary" : "border-border"
-                    }`}
-                  />
-                  <span className="font-medium text-foreground">Horizontal</span>
+                <div>
+                  <Label htmlFor="custom-width">Ancho Personalizado</Label>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Input
+                      id="custom-width"
+                      type="number"
+                      value={config.paperWidth}
+                      onChange={(e) => setConfig({ ...config, paperWidth: Number(e.target.value) })}
+                      className="max-w-[200px]"
+                    />
+                    <span className="text-sm text-muted-foreground">mm</span>
+                  </div>
                 </div>
-              </button>
-            </div>
-          </Card>
+              </div>
+            </Card>
+          ) : (
+            <>
+              <Card className="p-6 bg-card">
+                <h3 className="text-base font-semibold mb-4">Orientación</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setConfig({ ...config, orientation: "portrait" })}
+                    className={`p-4 rounded-lg border-2 transition-all ${config.orientation === "portrait"
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50"
+                      }`}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <div
+                        className={`w-16 h-20 rounded border-2 ${config.orientation === "portrait" ? "border-primary" : "border-border"
+                          }`}
+                      />
+                      <span className="font-medium text-foreground">Vertical</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setConfig({ ...config, orientation: "landscape" })}
+                    className={`p-4 rounded-lg border-2 transition-all ${config.orientation === "landscape"
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50"
+                      }`}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <div
+                        className={`w-20 h-16 rounded border-2 ${config.orientation === "landscape" ? "border-primary" : "border-border"
+                          }`}
+                      />
+                      <span className="font-medium text-foreground">Horizontal</span>
+                    </div>
+                  </button>
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-card">
+                <h3 className="text-base font-semibold mb-4">Resolución</h3>
+                <div>
+                  <Label className="mb-2 block">Selecciona la calidad de impresión (DPI)</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      { value: 72, label: "Screen (72)", desc: "Pantalla" },
+                      { value: 150, label: "Draft (150)", desc: "Borrador" },
+                      { value: 300, label: "Print (300)", desc: "Estándar" },
+                      { value: 600, label: "High (600)", desc: "Alta Calidad" },
+                    ].map((dpi) => (
+                      <button
+                        key={dpi.value}
+                        onClick={() => setConfig({ ...config, dpi: dpi.value })}
+                        className={`p-4 rounded-lg border-2 text-left transition-all ${config.dpi === dpi.value
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
+                          }`}
+                      >
+                        <div className="font-medium text-foreground">{dpi.label}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{dpi.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </>
+          )}
 
           <Card className="p-6 bg-card">
             <h3 className="text-base font-semibold mb-4">Márgenes del Documento (mm)</h3>
@@ -282,12 +341,12 @@ export function DocumentConfig({ onComplete }: DocumentConfigProps) {
 
           <div className="flex justify-end gap-3 pt-4">
             <Button onClick={handleSubmit} size="lg" className="gap-2">
-              Continuar al Editor
+              Guardar y Editar
               <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
-        </div>
-      </div>
-    </div>
+        </div >
+      </div >
+    </div >
   )
 }

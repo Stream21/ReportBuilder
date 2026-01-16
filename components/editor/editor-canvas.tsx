@@ -111,6 +111,11 @@ export function EditorCanvas({ template, zoom }: EditorCanvasProps) {
           width: isContinuous ? "100%" : `${canvasWidth * (zoom / 100)}mm`,
           height: isContinuous ? "auto" : `${canvasHeight * (zoom / 100)}mm`,
         }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            actions.selectNode(null)
+          }
+        }}
       >
         <div
           style={{

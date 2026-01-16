@@ -14,36 +14,44 @@ class PrintController extends AbstractController
         private DocumentGenerator $generator
     ) {}
 
-    #[Route('/print/{id}', name: 'app_print', methods: ['POST', 'GET'])]
-    public function print(string $id, Request $request): Response
+    #[Route('/print/{templateId}', name: 'app_print', methods: ['POST'])]
+    public function print(string $templateId, Request $request): Response
     {
-        // 1. In a real app, fetch JSON from DB using $id
-        // $template = $repository->find($id);
-        // $json = $template->getJson();
+        // Payload structure:
+        // {
+        //    "context": { "store_id": 12, "sale_id": 4500, "graduation_id": null },
+        //    "transport": "download" | "email" | "cloud_print",
+        //    "metadata": { "email_to": "customer@example.com" }
+        // }
         
-        // Mock data for simulation
-        $jsonPayload = json_decode($request->getContent(), true);
-        $mockData = [
-            'invoice' => ['number' => '2024-001', 'date' => '2024-01-01'],
-            'items' => [
-                ['name' => 'Service A', 'quantity' => 1, 'price' => 100],
-                ['name' => 'Service B', 'quantity' => 2, 'price' => 50],
-            ]
-        ];
-
+        $payload = $request->toArray();
+        $context = $payload['context'] ?? []; // The bag of IDs (store_id, sale_id...)
+        $transport = $payload['transport'] ?? 'download';
+        
         try {
-            // 2. Generate
-            $result = $this->generator->generate($jsonPayload['nodes'] ?? [], $mockData, 'pdf');
+            // DocumentGenerator handles the orchestration
+            // It uses templateId to find the ReportType (Invoice, Optometric)
+            // Then passes $context to the specific DataProvider
+            $result = $this->generator->generate($templateId, $context, $transport);
 
-            // 3. Return Binary Response
-            return new Response(
-                $result->getContent(),
-                200,
-                [
-                    'Content-Type' => $result->getMimeType(),
-                    'Content-Disposition' => 'inline; filename="' . $result->getFilename() . '"'
-                ]
-            );
+            // Handle Transport Response
+            return match ($transport) {
+                'download' => new Response(
+                    $result->getContent(),
+                    200,
+                    [
+                        'Content-Type' => $result->getMimeType(),
+                        'Content-Disposition' => 'attachment; filename="' . $result->getFilename() . '"'
+                    ]
+                ),
+                'preview' => new Response(
+                    $result->getContent(), // Binary
+                    200,
+                    ['Content-Type' => $result->getMimeType()] // Inline
+                ),
+                'email', 'cloud_print' => $this->json(['status' => 'queued', 'job_id' => $result->getJobId()]),
+                default => throw new \InvalidArgumentException("Invalid transport mode")
+            };
 
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 500);

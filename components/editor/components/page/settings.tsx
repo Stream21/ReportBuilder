@@ -1,57 +1,9 @@
-"use client"
-
+import React from "react"
 import { useNode } from "@craftjs/core"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import React from "react"
 
-interface PageProps {
-    children?: React.ReactNode
-    padding?: number
-    gap?: number
-    marginTop?: number
-    marginBottom?: number
-    marginLeft?: number
-    marginRight?: number
-    backgroundColor?: string
-}
-
-export function Page({
-    children,
-    padding = 8,
-    gap = 10,
-    marginTop = 0,
-    marginBottom = 0,
-    marginLeft = 0,
-    marginRight = 0,
-    backgroundColor = "#ffffff"
-}: PageProps) {
-    const {
-        connectors: { connect, drag },
-    } = useNode()
-
-    return (
-        <div
-            ref={(ref) => { if (ref) connect(drag(ref)) }}
-            className="w-full h-full relative"
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                padding: `${padding}px`,
-                gap: `${gap}px`,
-                marginTop: `${marginTop}px`,
-                marginBottom: `${marginBottom}px`,
-                marginLeft: `${marginLeft}px`,
-                marginRight: `${marginRight}px`,
-                backgroundColor,
-            }}
-        >
-            {children}
-        </div>
-    )
-}
-
-const PageSettings = () => {
+export const PageSettings = () => {
     const { padding, gap, marginTop, marginBottom, marginLeft, marginRight, backgroundColor, actions: { setProp } } = useNode((node) => ({
         padding: node.data.props.padding,
         gap: node.data.props.gap,
@@ -73,7 +25,7 @@ const PageSettings = () => {
                     className="h-8"
                     min={0}
                     value={padding || 0}
-                    onChange={(e) => setProp((props: PageProps) => props.padding = Number(e.target.value))}
+                    onChange={(e) => setProp((props: any) => props.padding = Number(e.target.value))}
                 />
                 <p className="text-[10px] text-muted-foreground">
                     Espacio interno desde los bordes del papel
@@ -90,7 +42,7 @@ const PageSettings = () => {
                             className="h-8 text-xs"
                             min={0}
                             value={marginTop || 0}
-                            onChange={(e) => setProp((props: PageProps) => props.marginTop = Number(e.target.value))}
+                            onChange={(e) => setProp((props: any) => props.marginTop = Number(e.target.value))}
                         />
                     </div>
                     <div className="space-y-1">
@@ -100,7 +52,7 @@ const PageSettings = () => {
                             className="h-8 text-xs"
                             min={0}
                             value={marginBottom || 0}
-                            onChange={(e) => setProp((props: PageProps) => props.marginBottom = Number(e.target.value))}
+                            onChange={(e) => setProp((props: any) => props.marginBottom = Number(e.target.value))}
                         />
                     </div>
                     <div className="space-y-1">
@@ -110,7 +62,7 @@ const PageSettings = () => {
                             className="h-8 text-xs"
                             min={0}
                             value={marginLeft || 0}
-                            onChange={(e) => setProp((props: PageProps) => props.marginLeft = Number(e.target.value))}
+                            onChange={(e) => setProp((props: any) => props.marginLeft = Number(e.target.value))}
                         />
                     </div>
                     <div className="space-y-1">
@@ -120,7 +72,7 @@ const PageSettings = () => {
                             className="h-8 text-xs"
                             min={0}
                             value={marginRight || 0}
-                            onChange={(e) => setProp((props: PageProps) => props.marginRight = Number(e.target.value))}
+                            onChange={(e) => setProp((props: any) => props.marginRight = Number(e.target.value))}
                         />
                     </div>
                 </div>
@@ -133,7 +85,7 @@ const PageSettings = () => {
                     className="h-8"
                     min={0}
                     value={gap || 0}
-                    onChange={(e) => setProp((props: PageProps) => props.gap = Number(e.target.value))}
+                    onChange={(e) => setProp((props: any) => props.gap = Number(e.target.value))}
                 />
                 <p className="text-[10px] text-muted-foreground">
                     Separación entre Header, Body y Footer
@@ -148,38 +100,17 @@ const PageSettings = () => {
                             type="color"
                             className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 p-0 border-0 cursor-pointer"
                             value={backgroundColor || "#ffffff"}
-                            onChange={(e) => setProp((props: PageProps) => props.backgroundColor = e.target.value)}
+                            onChange={(e) => setProp((props: any) => props.backgroundColor = e.target.value)}
                         />
                     </div>
                     <Input
                         type="text"
                         className="h-8 text-xs flex-1"
                         value={backgroundColor || "#ffffff"}
-                        onChange={(e) => setProp((props: PageProps) => props.backgroundColor = e.target.value)}
+                        onChange={(e) => setProp((props: any) => props.backgroundColor = e.target.value)}
                     />
                 </div>
             </div>
         </div>
     )
-}
-
-Page.craft = {
-    displayName: "Page",
-    props: {
-        padding: 8,
-        gap: 10,
-        marginTop: 0,
-        marginBottom: 0,
-        marginLeft: 0,
-        marginRight: 0,
-        backgroundColor: "#ffffff"
-    },
-    rules: {
-        canDrag: () => false,
-        canDelete: () => false,
-        canMoveIn: () => true,
-    },
-    related: {
-        settings: PageSettings
-    }
 }

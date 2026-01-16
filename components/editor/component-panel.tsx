@@ -1,12 +1,14 @@
-import { useEditor, Element } from "@craftjs/core"
+import { useEditor } from "@craftjs/core"
 import { useDrag } from "@/components/editor/drag-context"
-import { Type, Square, Table as TableIcon, Layout, Minus, Plus, Settings2, Layers as LayersIcon, Database } from "lucide-react"
+import { Plus, Settings2, Layers as LayersIcon, Database } from "lucide-react" // Removed unused icons
 import {
-  Container,
-  Text,
-  Table,
-  GioComponent,
-  Divider,
+  ContainerTool,
+  GridTool,
+  DividerTool,
+  TextTool,
+  LabelValueTool,
+  TableTool,
+  GioTool
 } from "@/components/editor/components"
 import {
   Accordion,
@@ -14,7 +16,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
 import type { Template } from "@/app/page"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SettingsPanel } from "@/components/editor/settings-panel"
@@ -39,81 +40,37 @@ export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelPro
 
   useEffect(() => {
     if (selectedId) {
-      setActiveTab("edit")
+      setActiveTab((prev) => (prev === "layers" ? "layers" : "edit"))
     }
   }, [selectedId])
 
+  // Define tools list
+  const tools = [
+    ContainerTool,
+    GridTool,
+    DividerTool,
+    TextTool,
+    LabelValueTool,
+    TableTool,
+    GioTool
+  ]
+
+  // Group tools
   const sections = [
     {
       title: "Estructura",
       value: "structure",
-      items: [
-        {
-          name: "Contenedor",
-          type: "container",
-          icon: Square,
-          ref: (ref: HTMLDivElement) => { connectors.create(ref, <Element canvas is={Container} flexDirection="column" padding={20} />) },
-        },
-        {
-          name: "Cuadrícula",
-          type: "grid",
-          icon: Layout,
-          ref: (ref: HTMLDivElement) => {
-            connectors.create(
-              ref,
-              <Element
-                canvas
-                is={Container}
-                layout="grid"
-                columns={2}
-                rows={1}
-                gap={20}
-                padding={10}
-                minHeight="100px"
-              >
-                <Element canvas is={Container} padding={10} minHeight="80px" backgroundColor="#f8fafc" borderColor="#e2e8f0" borderWidth={1} borderRadius={4} />
-                <Element canvas is={Container} padding={10} minHeight="80px" backgroundColor="#f8fafc" borderColor="#e2e8f0" borderWidth={1} borderRadius={4} />
-              </Element>
-            )
-          },
-        },
-        {
-          name: "Separador",
-          type: "divider",
-          icon: Minus,
-          ref: (ref: HTMLDivElement) => { connectors.create(ref, <Divider />) },
-        },
-      ]
+      items: tools.filter(t => t.group === "structure")
     },
     {
       title: "Contenido",
       value: "content",
-      items: [
-        {
-          name: "Texto Simple",
-          type: "text",
-          icon: Type,
-          ref: (ref: HTMLDivElement) => { connectors.create(ref, <Text text="Texto de ejemplo" />) },
-        },
-        {
-          name: "Tabla de Ítems",
-          type: "table",
-          icon: TableIcon,
-          ref: (ref: HTMLDivElement) => { connectors.create(ref, <Table />) },
-        },
-      ]
+      items: tools.filter(t => t.group === "content")
     },
     {
       title: "Componentes Gio",
       value: "gio",
-      items: [
-        {
-          name: "Logotipo",
-          type: "gio",
-          icon: Layout,
-          ref: (ref: HTMLDivElement) => { connectors.create(ref, <GioComponent />) },
-        },
-      ]
+      items: tools.filter(t => t.group === "gio")
     }
   ]
 
@@ -166,7 +123,9 @@ export function ComponentPanel({ template, onTemplateUpdate }: ComponentPanelPro
                       return (
                         <div
                           key={i}
-                          ref={item.ref}
+                          ref={(ref: HTMLDivElement) => {
+                            if (ref) item.factory(connectors, ref)
+                          }}
                           onMouseDownCapture={() => setDragType(item.type as any)}
                           className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border border-border bg-card hover:bg-muted/50 hover:border-primary/50 cursor-grab active:cursor-grabbing transition-all duration-200 group"
                         >

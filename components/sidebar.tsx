@@ -21,10 +21,7 @@ export function Sidebar(props: SidebarProps) {
 
   return (
     <aside className="w-64 bg-card border-r border-border flex flex-col">
-      <div className="p-6 border-b border-border">
-        <h1 className="text-xl font-semibold text-foreground">GioReport</h1>
-        <p className="text-sm text-muted-foreground mt-1">Gestor de Plantillas</p>
-      </div>
+
 
       <nav className="flex-1 p-3">
         <div className="space-y-1">

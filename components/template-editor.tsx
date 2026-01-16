@@ -18,7 +18,9 @@ import {
   Footer,
   Page,
   Divider,
-  GioComponent
+  GioComponent,
+  LabelValue,
+  Grid,
 } from "@/components/editor/components"
 import { RenderNode } from "@/components/editor/render-node" // New
 
@@ -50,6 +52,8 @@ export function TemplateEditor({ template, onTemplateUpdate }: TemplateEditorPro
           Header,
           Footer,
           Page,
+          LabelValue,
+          Grid,
         }}
         onRender={RenderNode} // New
         indicator={{
@@ -63,7 +67,6 @@ export function TemplateEditor({ template, onTemplateUpdate }: TemplateEditorPro
             template={template}
             zoom={zoom}
             onZoomChange={setZoom}
-            onToggleVariables={() => { }} // Ya no se usa individualmente
             onToggleComponents={() => setShowComponents(!showComponents)}
 
             showComponents={showComponents}

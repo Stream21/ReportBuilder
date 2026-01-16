@@ -15,10 +15,10 @@ class DocumentGenerator
 
     /**
      * @param string $templateId ID of the template definition
-     * @param string $entityId ID of the actual record (Invoice ID)
-     * @param string $format 'pdf', 'email', etc.
+     * @param array  $context    Bag of IDs (store_id, sale_id, etc.)
+     * @param string $transport  'download', 'email', 'cloud_print'
      */
-    public function generate(string $templateId, string $entityId, string $format = 'pdf'): OutputResult
+    public function generate(string $templateId, array $context, string $transport = 'download'): OutputResult
     {
         // 1. Fetch Template JSON + Metadata from DB
         // $templateEntity = $this->repository->find($templateId);
@@ -37,11 +37,17 @@ class DocumentGenerator
         );
 
         // 2. Load Data Strategy
+        // Context-aware provider: it knows how to use 'store_id' or 'sale_id'
         $provider = $this->dataProviderFactory->getProvider($reportType);
-        $data = $provider->getData($entityId);
+        $data = $provider->getData($context);
 
-        // 3. Select Channel Strategy
-        $channel = $this->channelFactory->create($format);
+        // 3. Select Channel Strategy (PDF, EmailBody, etc.)
+        // Map transport modes to internal channel types if needed
+        $channelType = match($transport) {
+            'email' => 'html', // Email uses HTML body
+            default => 'pdf',  // Download/Print uses PDF
+        };
+        $channel = $this->channelFactory->create($channelType);
 
         // 4. Execute Generation with Config
         return $channel->generate($craftJson, $data, $templateConfig);

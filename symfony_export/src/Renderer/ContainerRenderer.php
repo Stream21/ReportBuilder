@@ -32,25 +32,15 @@ class ContainerRenderer implements ComponentRendererInterface
             }
         }
 
-        // 3. Layout Handling (Grid vs Flex)
-        $layout = $props['layout'] ?? 'flex';
-
-        if ($layout === 'grid') {
-            $cols = $props['columns'] ?? 1;
-            $rows = $props['rows'] ?? 1;
-            // Generate Grid Styles
-            $style .= "display:grid; grid-template-columns:repeat({$cols}, 1fr); grid-template-rows:repeat({$rows}, 1fr);";
-        } else {
-            // Generate Flex Styles
-            $style .= sprintf(
-                'display:flex; flex-direction:%s; flex-wrap:%s; justify-content:%s; align-items:%s; flex-grow:%s;',
-                $props['flexDirection'] ?? 'column',
-                $props['flexWrap'] ?? 'nowrap',
-                $props['justifyContent'] ?? 'flex-start',
-                $props['alignItems'] ?? 'flex-start',
-                $props['flexGrow'] ?? 0
-            );
-        }
+        // 3. Layout Handling (Flexbox)
+        $style .= sprintf(
+            'display:flex; flex-direction:%s; flex-wrap:%s; justify-content:%s; align-items:%s; flex-grow:%s;',
+            $props['flexDirection'] ?? 'column',
+            $props['flexWrap'] ?? 'nowrap',
+            $props['justifyContent'] ?? 'flex-start',
+            $props['alignItems'] ?? 'flex-start',
+            $props['flexGrow'] ?? 0
+        );
 
         // 4. Return Wrapper
         return "<div style=\"{$style}\">{$childrenHtml}</div>";
